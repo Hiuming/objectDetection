@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js">  </script>
+    <style>
+        img {
+            width: 100%;
+            height: 100%;
+        }
+
+        * {
+            box-sizing: border-box;
+            padding: 0;
+            margin: 0;
+        }
+
+
+        h1{
+            color: white;
+        }
+        html,
+        body {
+            display: grid;
+            justify-content: center;
+            place-items: center;
+            height: 100%;
+            text-align: center;
+            background-color: #444444;
+        }
+
+        .container {
+            height: 350px;
+            width: 430px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-gap:30px;
+            text-align: center;
+            place-items: center;
+            justify-content: center;
+            border-radius:  20%;
+        }
+
+        .container .wrapper {
+            position: relative;
+            height: 400px;
+            width: 400px;
+            border: 2px dashed #c2cdda;
+            justify-content: center;
+        }
+
+        .wrapper .image {
+            height: 100%;
+            width: 100%;
+        }
+
+        .wrapper .content {
+            top: 50%;
+            left: 35%;
+            position: absolute;
+
+        }
+
+        .container #custome-btn {
+            margin-top: 30px;
+            width: 100%;
+            height: 50px;
+            display: block;
+            border-radius: 10px;
+        }
+
+        .container #custome-btn:hover {
+            background-color: #ddd;
+        }
+
+        #processButton{
+            margin-bottom: 50px;
+            padding: 30px 50px;
+        }
+
+        #imageInput{
+            margin-top: 20px;
+            padding: 10px 20px;
+            justify-content: center;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <h1>Final Project - Lab 1 : Object Detection</h1>
+    <div class="container">
+        
+            <div class="wrapper">
+                <div class="image">
+                    <img id="image">
+                </div>
+
+                <div class="content" id="content">
+                    <div class="text">No file chosen, yet! </div>
+                </div>
+                
+                <div>
+                    <input id="imageInput" onchange="loadFile(event)" type="file">
+                </div>
+            </div>
+         
+
+        
+        
+        
+            <div class="wrapper">
+                <div class="image">
+                    <img id="imageOutput">
+                </div>
+
+                <div class="content" id="content">
+                    <div class="text"> </div>
+                </div>
+            </div>
+        
+
+        
+    </div>
+    <button id="processButton" onclick="onClickProcess()">Process</button>
+
+    <script>
+        var loadFile = function (event) {
+            var reader = new FileReader();
+            reader.onload = function () {
+                var output = document.getElementById('image');
+                output.src = reader.result;
+            };
+            reader.readAsDataURL(event.target.files[0]);
+            document.getElementById('content').style.display = "none"
+        };
+
+        function onClickProcess() {
+            console.log('t')
+            imagebox = $('#imageOutput')
+            input = $('#imageInput')[0]
+            if (input.files && input.files[0]) {
+                let formData = new FormData();
+                formData.append('image', input.files[0]);
+                $.ajax({
+                    url: "http://localhost:5000/detectObject",
+                    type: "POST",
+                    data: formData,
+                    cache: false,
+                    processData: false,
+                    contentType: false,
+                    error: function (data) {
+                        console.log("upload error", data);
+                        console.log(data.getAllResponseHeaders());
+                    },
+                    success: function (data) {
+                        console.log(data);
+                        bytestring = data['status']
+                        image = bytestring.split('\'')[1]
+                        imagebox.attr('src', 'data:image/jpeg;base64,' + image)
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+
+
+</html>
